@@ -1,0 +1,144 @@
+###############################################################################
+# Example configuration for synthetic overlapping speech dataset generation
+###############################################################################
+
+# Update these paths to point at your local copies of the speech corpora and
+# augmentation datasets.  Both directories must contain subdirectories for
+# each speaker (e.g. s1, s2, ... or Actor_1, Actor_2, ...), with WAV
+# files stored inside.
+grid_dir: "/path/to/grid_corpus"
+ravdess_dir: null
+
+# Root of the MUSAN noise dataset.  The generator expects the following
+# structure: <musan_dir>/<noise_type>/<train|test>/*.wav.  Common noise
+# types include "babble", "music" and "noise" (ambient/white noise).
+musan_dir: "/path/to/musan"
+
+# Directory of room impulse responses (RIRs) for reverberation.  Each
+# subdirectory corresponds to a room size (e.g. "smallroom", "mediumroom",
+# "largeroom") and contains "train" and "test" subfolders with WAV
+# impulse responses.  The OpenSLR RIR dataset is compatible.
+rir_dir: "/path/to/rir"
+
+# Directory into which the generated OSD dataset will be written.  The
+# generator will create separate directories for GRID and RAVDESS under
+# this output directory if ``separate_corpora`` is true.
+output_dir: "./datasets/generated_osd"
+
+# Parameters controlling the amount of data to generate (in hours per split).
+duration_hours:
+  train: 20
+  val: 3
+  test: 2
+
+# Range of signal‑to‑interference ratios (SIR) between the target and
+# interfering speech in dB.  [0,5] means the interferer will be between
+# equally loud and 5 dB quieter than the target.
+sir_range: [0, 5]
+
+# Minimum fraction of each mixture during which both speakers overlap.  The
+# interferer will be placed such that at least this proportion of the
+# mixture contains overlapping speech.
+min_overlap_ratio: 0.35
+
+# List of signal‑to‑noise ratios (SNRs) in dB to use when adding noise.  For
+# clean mixtures no noise is added.  Negative values correspond to
+# particularly noisy conditions.
+snr_levels: [-5, 0, 5, 10, 15, 20]
+
+# Types of noise to mix into the speech.  Each entry must correspond to a
+# subdirectory under ``musan_dir``.
+noise_types:
+  - babble
+  - music
+  - noise
+
+# Room size categories from which to select RIRs.  Add additional room
+# types ("smallroom", "mediumroom") to broaden the acoustic conditions.
+rir_room_types:
+  - largeroom
+
+# Sampling rate (Hz) for resampling all audio before mixing.  Set to the
+# native rate of your corpora (e.g. 16000 for 16 kHz).  Mixing at a lower
+# rate (e.g. 8 kHz) reduces CPU load but changes the filterbank band
+# spacing.
+sample_rate: 16000
+
+# Whether to generate separate datasets for GRID and RAVDESS.  If false,
+# utterances from both corpora are pooled together.
+separate_corpora: true
+
+# Convert all audio files to 16‑bit PCM when writing.  Disable this to
+# retain floating‑point precision at the cost of larger files.
+write_int16: false
+
+# Random seed for reproducibility.  Set this to a fixed value to obtain
+# identical datasets across runs.
+random_seed: 42
+
+# List of recording conditions to generate.  Specify any subset of
+# "clean", "babble", "music", "noise" and "white".  Only conditions
+# listed here will be produced.  To generate only clean mixtures, set
+# this to [clean].  To generate only babble noise mixtures, set this
+# to [babble].  When omitted, all conditions listed under ``noise_types``
+# plus "clean" will be generated.
+enabled_conditions:
+  - clean
+  - babble
+  - music
+  - noise
+
+# Whether to generate reverberated versions of mixtures.  If false, the
+# generator creates only ``no_reverb`` subdirectories (clean and noisy
+# mixtures without RIR convolution).
+generate_reverberated: false
+
+# Feature extraction parameters.  These settings are used by the
+# gammatone feature extraction script (provided separately).  They have
+# no effect on dataset generation itself.
+feature_extraction:
+  window_time: 0.025    # 25 ms frame length
+  hop_time:    0.010    # 10 ms frame hop
+  channels:    80       # number of gammatone filters
+  f_min:       50.0     # minimum frequency in Hz
+  sequence_length: 100  # frames per input sequence
+  sequence_stride: 50   # stride between sequences
+  num_workers: 1
+
+# List speakers considered male for each corpus.  Speakers not listed
+# here are treated as female.  These lists are used to enforce fixed
+# male/female distributions in train/val/test splits (for GRID and
+# RAVDESS).  Replace these with the speaker IDs in your corpora.
+male_speakers:
+  grid:
+    - s1
+    - s2
+    - s3
+    - s5
+    - s6
+    - s8
+    - s9
+    - s10
+    - s12
+    - s13
+    - s14
+    - s17
+    - s19
+    - s26
+    - s27
+    - s28
+    - s30
+    - s32
+  ravdess:
+    - Actor_1
+    - Actor_3
+    - Actor_5
+    - Actor_7
+    - Actor_9
+    - Actor_11
+    - Actor_13
+    - Actor_15
+    - Actor_17
+    - Actor_19
+    - Actor_21
+    - Actor_23

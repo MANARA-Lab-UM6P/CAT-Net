@@ -1,0 +1,17 @@
+# Core neural network framework
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Numerical computing
+numpy>=1.20
+scipy>=1.6
+
+# Data processing and utilities
+tqdm>=4.64
+pyyaml>=6.0
+
+# Gammatone filterbank for log‑gammatone features
+gammatone>=1.0
+
+# Optional: for dataset generation and evaluation
+soundfile>=0.12
